@@ -23,6 +23,9 @@
   (#?(:clj deref :cljs -deref) [_] s))
 
 (defn g-set
+  "Creates a GSet. It only supports once operation: add-element [::add {::element x}]
+
+  No elements can be removed once added."
   ([] (g-set (new-uuid)))
   ([replica-id] (g-set replica-id #{}))
   ([replica-id init-value] (GSet. replica-id init-value)))
@@ -37,7 +40,7 @@
           n 10
           ops (take n (map add-op (repeat (rand-nth [a b])) (range)))]
       (is (= #{} @a @b))
-      (is (= @(reduce step-g-set a ops) @(reduce step-g-set b (shuffle ops))))
+      (is (= (set (range n)) @(reduce step-g-set a ops) @(reduce step-g-set b (shuffle ops))))
       (is (= n (count @(reduce step-g-set a ops)) (count @(reduce step-g-set b (shuffle ops))))))))
 
 ;; ======================================================================
