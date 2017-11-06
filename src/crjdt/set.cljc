@@ -1,13 +1,8 @@
 (ns crjdt.set
-  (:require [clojure.set :as set])
+  (:require [clojure.set :as set]
+            [crjdt.util :as util])
   (:import crjdt.core.ICRDT))
 
-(defn now []
-  #?(:clj (java.util.Date.)
-     :cljs (js/Date.)))
-
-(defn new-uuid []
-  #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid)))
 
 (defprotocol ICRDTSet
   (add-op [this element])
@@ -32,7 +27,7 @@
   "Creates a GSet. It only supports once operation: add-element [::add {::element x}]
 
   No elements can be removed once added."
-  ([] (g-set (new-uuid)))
+  ([] (g-set (util/new-uuid)))
   ([replica-id] (g-set replica-id #{}))
   ([replica-id init-value]
    {:pre [(set? init-value)]}
@@ -60,7 +55,7 @@
 
 (defn p-set
   "Creates a 2P-Set. An element can only be added and removed once."
-  ([] (p-set (new-uuid)))
+  ([] (p-set (util/new-uuid)))
   ([replica-id] (p-set replica-id #{}))
   ([replica-id init-value]
    {:pre [(set? init-value)]}
@@ -80,9 +75,9 @@
             element->timestamps))
   ICRDTSet
   (add-op [this element]
-    [::remove {::element element ::added-ts (now)}])
+    [::remove {::element element ::added-ts (util/now)}])
   (remove-op [this element]
-    [::remove {::element element ::added-ts (now)}])
+    [::remove {::element element ::added-ts (util/now)}])
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
@@ -91,7 +86,7 @@
       this)))
 
 (defn lww-set
-  ([] (lww-set (new-uuid)))
+  ([] (lww-set (util/new-uuid)))
   ([replica-id] (lww-set replica-id #{}))
   ([replica-id init-value] (LWWSet. replica-id (into {} (map (fn [k] [k {:added-ts (now)}]) init-value)))))
 
@@ -109,9 +104,9 @@
             element->tags))
   ICRDTSet
   (add-op [this element]
-    [::add {::element element ::tag (new-uuid)}])
+    [::add {::element element ::tag (util/new-uuid)}])
   (remove-op [this element]
-    [::remove {::element element ::tag (new-uuid)}])
+    [::remove {::element element ::tag (util/new-uuid)}])
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
@@ -120,9 +115,9 @@
       this)))
 
 (defn or-set
-  ([] (or-set (new-uuid)))
+  ([] (or-set (util/new-uuid)))
   ([replica-id] (or-set replica-id #{}))
-  ([replica-id init-value] (ORSet. replica-id (into {} (map (fn [k] [k {:add-tags #{(new-uuid)}}]) init-value)))))
+  ([replica-id init-value] (ORSet. replica-id (into {} (map (fn [k] [k {:add-tags #{(util/new-uuid)}}]) init-value)))))
 
 ;; ======================================================================
 ;; MC Set
@@ -149,6 +144,6 @@
       this)))
 
 (defn mc-set
-  ([] (mc-set (new-uuid)))
+  ([] (mc-set (util/new-uuid)))
   ([replica-id] (mc-set replica-id #{}))
   ([replica-id init-value] (MCSet. replica-id (into {} (map (fn [k] [k 1]) init-value)))))
