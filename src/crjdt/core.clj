@@ -1,6 +1,4 @@
 (ns crjdt.core)
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defprotocol ICRDT
+  (step [this op]))

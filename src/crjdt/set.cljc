@@ -1,5 +1,6 @@
 (ns crjdt.set
-  (:require [clojure.set :as set]))
+  (:require [clojure.set :as set])
+  (:import crjdt.core.ICRDT))
 
 (defn now []
   #?(:clj (java.util.Date.)
@@ -7,9 +8,6 @@
 
 (defn new-uuid []
   #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid)))
-
-(defprotocol ICRDT
-  (step [this op]))
 
 (defprotocol ICRDTSet
   (add-op [this element])
