@@ -18,10 +18,17 @@
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
-      ::assign (if (compare latest-ts (::ts op-args))
-                 (assoc this :v (::value op-args))
-                 this)
+      ::assign (case (compare latest-ts (::ts op-args))
+                 -1 (assoc this :v (::value op-args) :latest-ts (::ts op-args))
+                 ;; arbitrary if the timestamps are exactly the same, the local copy wins
+                 0  this
+                 1 this)
       this)))
+
+(defn lww
+  ([] (lww (util/new-uuid)))
+  ([replica-id] (lww replica-id nil))
+  ([replica-id init-val] (LWW. init-val (util/now))))
 
 ;; ======================================================================
 ;; Vector Clocks
