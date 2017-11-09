@@ -88,7 +88,7 @@
 (defn lww-set
   ([] (lww-set (util/new-uuid)))
   ([replica-id] (lww-set replica-id #{}))
-  ([replica-id init-value] (LWWSet. replica-id (into {} (map (fn [k] [k {:added-ts (now)}]) init-value)))))
+  ([replica-id init-value] (LWWSet. replica-id (into {} (map (fn [k] [k {:added-ts (util/now)}]) init-value)))))
 
 ;; ======================================================================
 ;; OR-Set
