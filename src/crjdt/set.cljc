@@ -36,7 +36,7 @@
 ;; ======================================================================
 ;; 2P-Set
 
-(defrecord PSet [replica-id added removed]
+(defrecord TPSet [replica-id added removed]
   #?(:clj clojure.lang.IDeref :cljs IDeref)
   (#?(:clj deref :cljs -deref) [_]
     (set/difference added removed))
@@ -53,13 +53,13 @@
       ::remove (update this :removed #(conj % (::element op-args)))
       this)))
 
-(defn p-set
+(defn tp-set
   "Creates a 2P-Set. An element can only be added and removed once."
-  ([] (p-set (util/new-uuid)))
-  ([replica-id] (p-set replica-id #{}))
+  ([] (tp-set (util/new-uuid)))
+  ([replica-id] (tp-set replica-id #{}))
   ([replica-id init-value]
    {:pre [(set? init-value)]}
-   (PSet. replica-id init-value #{})))
+   (TPSet. replica-id init-value #{})))
 
 ;; ======================================================================
 ;; LWW-Element-Set

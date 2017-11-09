@@ -17,10 +17,10 @@
       (is (= (set (range n)) @(reduce crdt/step a ops) @(reduce crdt/step b (shuffle ops))))
       (is (= n (count @(reduce crdt/step a ops)) (count @(reduce crdt/step b (shuffle ops))))))))
 
-(deftest p-set-convergence
+(deftest tp-set-convergence
   (testing "you can't remove elements that haven't been added"
-    (let [a          (crdt-set/p-set)
-          b          (crdt-set/p-set)
+    (let [a          (crdt-set/tp-set)
+          b          (crdt-set/tp-set)
           n          10
           add-ops    (take n (map #(%1 %2 %3)
                                   (repeat crdt-set/add-op)
@@ -36,8 +36,8 @@
       (is (= (set (range n)) @(reduce crdt/step a add-ops) @(reduce crdt/step b (shuffle add-ops))))
       (is (= @(reduce crdt/step a (concat add-ops remove-ops)) @(reduce crdt/step b (shuffle (concat add-ops remove-ops)))))))
   (testing "operations applied to different copies converge"
-    (let [a   (crdt-set/p-set)
-          b   (crdt-set/p-set)
+    (let [a   (crdt-set/tp-set)
+          b   (crdt-set/tp-set)
           n   10
           ops (take n (map #(%1 %2 %3)
                            (repeatedly #(rand-nth [crdt-set/add-op crdt-set/remove-op]))
