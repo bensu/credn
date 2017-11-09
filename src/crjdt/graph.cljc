@@ -5,6 +5,13 @@
             [clojure.test :as t :refer [deftest testing is are]])
   (:import [crjdt.core ICRDT]))
 
+(defprotocol ICRDTGraph
+  (add-vertex-op [graph v])
+  (add-edge-op [graph from to])
+  (add-between-op [graph from to] [graph from to vertex])
+  (remove-vertex-op [graph v])
+  (remove-edge-op [graph from to]))
+
 (defn path?
   "Checks if there is a path between from and to"
   [{:keys [vertices edges] :as dag} from to]
@@ -18,36 +25,29 @@
       :else (or (some (fn [[start end]] (path? dag end to)) edges-from)
                 false))))
 
-(defn add-between-op
-  "new-vertext needs to be globally unique. Use uuids (default arity) or make sure you are passing other unique identifiers"
-  ([dag from to] (add-between-op dag from to (util/new-uuid)))
-  ([dag from to new-vertex]
-   (when (and (not (contains? (:vertices @dag) new-vertex))
-              (contains? (:vertices @dag) from)
-              (contains? (:vertices @dag) to)
-              (path? @dag from to))
-     [::add-between {::from from ::to to ::new new-vertex}])))
-
-(defn add-edge-op
-  "Adds an edge between to vertices only if there is already a path between the two vertices"
-  [dag from to]
-  (when (and (contains? (:vertices dag) from)
-             (contains? (:vertices dag) to)
-             (path? @dag from to))
-    [::add-edge {::from from ::to to}]))
-
-(defn remove-vertex-op [dag v]
-  (when (and (contains? (:vertices @dag) v)
-             (not= (:start-vertex dag) v)
-             (not= (:end-vertex dag) v))
-    [::remove-vertex {::vertex v}]))
-
 ;; ======================================================================
 ;; Monotonic DAG
 
 (defrecord MonotonicDAG [vertices edges]
   #?(:clj clojure.lang.IDeref :cljs IDeref)
   (#?(:clj deref :cljs -deref) [_] {:vertices vertices :edges edges})
+  ICRDTGraph
+  (add-between-op [dag from to]
+    (add-between-op dag from to (util/new-uuid)))
+  (add-between-op [dag from to v]
+    (when (and (not (contains? (:vertices @dag) v))
+               (contains? (:vertices @dag) from)
+               (contains? (:vertices @dag) to)
+               (path? @dag from to))
+      [::add-between {::from from ::to to ::new v}]))
+  (add-edge-op [dag from to]
+    (when (and (contains? (:vertices dag) from)
+               (contains? (:vertices dag) to)
+               (path? @dag from to))
+      [::add-edge {::from from ::to to}]))
+  (add-vertex-op [dag v] nil)
+  (remove-vertex-op [dag v] nil)
+  (remove-edge-op [dag from to] nil)
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
@@ -80,6 +80,23 @@
                            (or (contains? vr start)
                                (contains? vr end)))
                          edges))})
+  ICRDTGraph
+  (add-between-op [dag from to]
+    (add-between-op dag from to (util/new-uuid)))
+  (add-between-op [dag from to v]
+    (when (and (not (contains? (:vertices @dag) v))
+               (contains? (:vertices @dag) from)
+               (contains? (:vertices @dag) to)
+               (path? @dag from to))
+      [::add-between {::from from ::to to ::new v}]))
+  (add-edge-op [dag from to] nil)
+  (add-vertex-op [dag v] nil)
+  (remove-vertex-op [dag v]
+    (when (and (contains? (:vertices @dag) v)
+               (not= (:start-vertex dag) v)
+               (not= (:end-vertex dag) v))
+      [::remove-vertex {::vertex v}]))
+  (remove-edge-op [dag from to] nil)
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
