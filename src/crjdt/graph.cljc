@@ -116,3 +116,32 @@
   ([start-vertex end-vertex init-vertex init-edges]
    ;; XXX: check that the graph is dag!
    (PartialOrder. start-vertex end-vertex init-vertex #{} init-edges)))
+
+;; ======================================================================
+;; 2P2P Graph
+
+(defrecord TPT2Graph [va vr ea er]
+  #?(:clj clojure.lang.IDeref :cljs IDeref)
+  (#?(:clj deref :cljs -deref) [_] {:vertices (set/difference va vr) :edges (set/difference ea er)})
+  ICRDTGraph
+  (add-vertex-op [graph v]
+    [::add-vertex {::new v}])
+  (add-edge-op [graph from to]
+    (when (and (contains? (:vertices @graph) from)
+               (contains? (:vertices @graph) to))
+      [::add-edge {::from from ::to to}]))
+  (remove-vertex-op [graph v]
+    (when (empty? (filter (fn [[start end]] (or (= v start) (= v end))) (:edges @graph)))
+      [::remove-vertex {::vertex v}]))
+  (remove-edge-op [graph from to]
+    (when (contains? (:edges @graph) [from to])
+      [::remove-edge {::edfge [from to]}]))
+  (add-between-op [_ _ _] nil)
+  (add-between-op [_ _ _ _] nil)
+  ICRDT
+  (step [this [op-name op-args]]
+    (case op-name
+      ::add-vertex (update :va #(conj % (::new op-args)))
+      ::add-edge  (update :ea #(conj % [(::from op-args) (::to op-args)]))
+      ::remove-vertex (update this :vr #(conj % (::vertex op-args)))
+      this)))
