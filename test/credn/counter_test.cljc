@@ -1,11 +1,11 @@
-(ns crjdt.counter-test
+(ns credn.counter-test
   #?@(:clj
        [(:require
          [clojure.test :as t :refer [deftest is testing]]
-         [crjdt.core :as crdt]
-         [crjdt.counter :as crdt-counter])]
+         [credn.core :as crdt]
+         [credn.counter :as crdt-counter])]
        :cljs
-       [(:require [crjdt.core :as crdt] [crjdt.counter :as crdt-counter])]))
+       [(:require [credn.core :as crdt] [credn.counter :as crdt-counter])]))
 
 (deftest g-counter-convergence
   (testing "operations applied to different copies converge"

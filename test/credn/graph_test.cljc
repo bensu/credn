@@ -1,6 +1,6 @@
-(ns crjdt.graph-test
-  (:require [crjdt.graph :as crdt-graph]
-            [crjdt.core :as crdt]
+(ns credn.graph-test
+  (:require [credn.graph :as crdt-graph]
+            [credn.core :as crdt]
             #?(:clj [clojure.test :as t :refer [deftest testing is are]]
                :cljs [cljs.test :as t :include-macros true])))
 

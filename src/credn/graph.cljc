@@ -1,9 +1,9 @@
-(ns crjdt.graph
-  (:require [crjdt.core :as crdt]
-            [crjdt.util :as util]
+(ns credn.graph
+  (:require [credn.core :as crdt]
+            [credn.util :as util]
             [clojure.set :as set]
             [clojure.test :as t :refer [deftest testing is are]])
-  (:import [crjdt.core ICRDT]))
+  (:import [credn.core ICRDT]))
 
 (defprotocol ICRDTGraph
   (add-vertex-op [graph v])

@@ -1,4 +1,4 @@
-(ns crjdt.core)
+(ns credn.core)
 
 (defprotocol ICRDT
   (step [this op]))

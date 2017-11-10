@@ -1,11 +1,11 @@
-(ns crjdt.set-test
+(ns credn.set-test
   #?@(:clj
        [(:require
          [clojure.test :as t :refer [deftest is testing]]
-         [crjdt.core :as crdt]
-         [crjdt.set :as crdt-set])]
+         [credn.core :as crdt]
+         [credn.set :as crdt-set])]
        :cljs
-       [(:require [crjdt.core :as crdt] [crjdt.set :as crdt-set])]))
+       [(:require [credn.core :as crdt] [credn.set :as crdt-set])]))
 
 (deftest g-set-convergence
   (testing "operations applied to different copies converge"

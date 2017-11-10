@@ -1,4 +1,4 @@
-(ns crjdt.util)
+(ns credn.util)
 
 (defn now []
   #?(:clj (java.util.Date.)

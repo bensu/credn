@@ -1,7 +1,7 @@
-(ns crjdt.set
+(ns credn.set
   (:require [clojure.set :as set]
-            [crjdt.util :as util])
-  (:import crjdt.core.ICRDT))
+            [credn.util :as util])
+  (:import credn.core.ICRDT))
 
 
 (defprotocol ICRDTSet

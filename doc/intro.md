@@ -1,3 +1,3 @@
-# Introduction to crjdt
+# Introduction to credn
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

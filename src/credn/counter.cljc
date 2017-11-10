@@ -1,5 +1,5 @@
-(ns crjdt.counter
-  (:import crjdt.core.ICRDT))
+(ns credn.counter
+  (:import credn.core.ICRDT))
 
 (defprotocol ICRDTCounter
   (inc-op [this])

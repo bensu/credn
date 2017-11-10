@@ -1,8 +1,8 @@
-(ns crjdt.register
+(ns credn.register
   (:require [clojure.set :as set]
-            [crjdt.util :as util]
-            [crjdt.core :as crdt])
-  (:import [crjdt.core ICRDT]))
+            [credn.util :as util]
+            [credn.core :as crdt])
+  (:import [credn.core ICRDT]))
 
 (defprotocol IRegister
   (assign-op [this v]))

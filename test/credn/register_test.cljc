@@ -1,11 +1,11 @@
-(ns crjdt.register-test
+(ns credn.register-test
   #?@(:clj
        [(:require
          [clojure.test :as t :refer [deftest is testing]]
-         [crjdt.core :as crdt]
-         [crjdt.register :as crdt-register])]
+         [credn.core :as crdt]
+         [credn.register :as crdt-register])]
        :cljs
-       [(:require [crjdt.core :as crdt] [crjdt.register :as crdt-register])]))
+       [(:require [credn.core :as crdt] [credn.register :as crdt-register])]))
 
 (deftest lww-convergence
   (testing "lww converges as we expect"
