@@ -122,7 +122,12 @@
 
 (defrecord TPT2Graph [va vr ea er]
   #?(:clj clojure.lang.IDeref :cljs IDeref)
-  (#?(:clj deref :cljs -deref) [_] {:vertices (set/difference va vr) :edges (set/difference ea er)})
+  (#?(:clj deref :cljs -deref) [_]
+    (let [vertices (set/difference va vr)]
+      {:vertices vertices :edges (set (remove (fn [[start end]]
+                                                (or (not (contains? vertices start))
+                                                    (not (contains? vertices end))))
+                                              (set/difference ea er)))}))
   ICRDTGraph
   (add-vertex-op [graph v]
     [::add-vertex {::new v}])
