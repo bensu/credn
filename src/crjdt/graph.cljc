@@ -120,7 +120,7 @@
 ;; ======================================================================
 ;; 2P2P Graph
 
-(defrecord TPT2Graph [va vr ea er]
+(defrecord TPTPGraph [va vr ea er]
   #?(:clj clojure.lang.IDeref :cljs IDeref)
   (#?(:clj deref :cljs -deref) [_]
     (let [vertices (set/difference va vr)]
@@ -146,7 +146,11 @@
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
-      ::add-vertex (update :va #(conj % (::new op-args)))
-      ::add-edge  (update :ea #(conj % [(::from op-args) (::to op-args)]))
+      ::add-vertex    (update this :va #(conj % (::new op-args)))
+      ::add-edge      (update this :ea #(conj % [(::from op-args) (::to op-args)]))
       ::remove-vertex (update this :vr #(conj % (::vertex op-args)))
       this)))
+
+(defn tptp
+  ([] (tptp #{} #{}))
+  ([init-vertex init-edges] (TPTPGraph. #{} #{} #{} #{})))
