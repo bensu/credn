@@ -130,14 +130,16 @@
                                               (set/difference ea er)))}))
   ICRDTGraph
   (add-vertex-op [graph v]
-    [::add-vertex {::new v}])
+    (when-not (contains? (:vertices @graph) v)
+      [::add-vertex {::new v}]))
   (add-edge-op [graph from to]
     (when (and (contains? (:vertices @graph) from)
                (contains? (:vertices @graph) to))
       [::add-edge {::from from ::to to}]))
   (remove-vertex-op [graph v]
-    (when (empty? (filter (fn [[start end]] (or (= v start) (= v end))) (:edges @graph)))
-      [::remove-vertex {::vertex v}]))
+    (let [{:keys [edges vertices]} @graph]
+      (when (contains? vertices v)
+        [::remove-vertex {::vertex v}])))
   (remove-edge-op [graph from to]
     (when (contains? (:edges @graph) [from to])
       [::remove-edge {::edfge [from to]}]))
