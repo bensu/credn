@@ -3,7 +3,8 @@
   (:refer-clojure :exclude [compare]))
 
 (defprotocol ICRDT
-  (step [this op]))
+  "Op-based CRDTs implement this protocol."
+  (step [this op] "step applies an operation to a CRDT, returning a new CRDT. nil is a valid op, and yields the same CRDT"))
 
 ;; ======================================================================
 ;; Vector Clocks
