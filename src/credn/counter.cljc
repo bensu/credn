@@ -23,6 +23,7 @@
       this)))
 
 (defn g-counter
+  "Grow only counter, GCounter. It supports only ::inc. Memory is O(#replicas)"
   ([] (g-counter #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))))
   ([replica-id] (g-counter replica-id 0))
   ([replica-id init-value] (GCounter. replica-id {replica-id init-value})))
@@ -48,6 +49,7 @@
       this)))
 
 (defn pn-counter
+  "pn-counters track increments and decrements in to separate, GCounters. Their value is given by (- incs decs)"
   ([] (pn-counter #?(:clj (java.util.UUID/randomUUID) :cljs (random-uuid))))
   ([replica-id] (pn-counter replica-id 0))
   ([replica-id init-value] (PNCounter. replica-id {replica-id init-value} {replica-id 0})))
