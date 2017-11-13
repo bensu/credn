@@ -26,6 +26,7 @@
       this)))
 
 (defn lww
+  "Creates a new last-write wins register. It tracks the timestamp (UTC clock from replicas) of the last operation. Any incoming operations, earlier than the latest one are ignored. Looses data on conflict"
   ([] (lww (util/new-uuid)))
   ([replica-id] (lww replica-id nil))
   ([replica-id init-val] (LWW. init-val (util/now))))
@@ -64,7 +65,9 @@
       this)))
 
 (defn mv
-  "Always returns a set (even when there is only one value) when derefed to ensure that you handle the multiple possible values"
+  "Creates a multi-value register. Tracks the latest-val set by each replica. Whenever a replica sets a value, all replicas that see that op without a conflict, take it as its value.
+
+  When derefed it always returns a set (even when there is only one value). If there have been any conflicts, the set contains multiple values, off-loading conflict resolution to the user"
   ([] (mv (util/new-uuid)))
   ([replica-id] (mv replica-id nil))
   ([replica-id init-val]
