@@ -5,18 +5,6 @@
             [clojure.test :as t :refer [deftest testing is are]])
   (:import [credn.core ICRDT]))
 
-(defn split-pred
-  "Walks the seq until the pred matches on one of the elements. When it does, it returns [xs-before-pred xs-after-pred]"
-  [pred? xs]
-  {:pre [(ifn? pred?)]}
-  (loop [up-to []
-         xs    xs]
-    (if-let [x (first xs)]
-      (if (pred? x)
-        [(seq (conj up-to x)) (rest xs)]
-        (recur (conj up-to x) (rest xs)))
-      [(seq up-to) (rest xs)])))
-
 (defn edges->list [edges]
   (loop [xs [::start]
          edges edges]
@@ -80,6 +68,11 @@
               (sort-by (comp ::version second) (conj (:ops-buffer this) op))))))
 
 (defn rga
+  "Creates a Replicated Growable Array. Conceptually, it represents a linked list supporting:
+
+  - (add-right-op rga a b): adds b to the right of a, if a exists
+  - (cons-op rga x): adds x at the beginning of the list
+  - (remove-op rga x): removes x from the list"
   ([] (rga (util/new-uuid)))
   ([rid] (rga rid '(::start ::end)))
   ([rid init-seq]
