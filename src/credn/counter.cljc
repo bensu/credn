@@ -15,8 +15,7 @@
   ICRDTCounter
   (inc-op [this]
     [::inc {::replica-id replica-id}])
-  (dec-op [this]
-    [::dec {::replica-id replica-id}])
+  (dec-op [this] nil)
   ICRDT
   (step [this [op-name op-args]]
     (case op-name
