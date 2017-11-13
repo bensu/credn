@@ -13,10 +13,12 @@
   (remove-edge-op [graph from to]))
 
 (defn path?
-  "Checks if there is a path between from and to"
+  "Checks if there is a path between from and to.
+
+  Assumes it is a dag, otherwise doesn't terminate"
   [{:keys [vertices edges] :as dag} from to]
   {:post [boolean?]}
-  ;; XXX: assumes it is a dag, otherwise doesn't terminate
+  ;; XXX:
   (let [edges-from (filter (fn [[start end]] (= from start)) edges)
         edges-to   (filter (fn [[start end]] (= to end)) edges-from)]
     (cond
@@ -61,6 +63,14 @@
       this)))
 
 (defn monotonic-dag
+  "Creates a monotonic Directed Acyclic Graph. Monotonic because you can only add, never remove. Based on grow only sets.
+
+  Supports:
+
+  - (add-edge-op dag from to): only works if there is already a path? from to and thus maintains the 'direction' of the graph
+  - (add-between-op dag from to v): inserts a vertex and two edges and only works if there is already a path? from to
+
+  The underlying graph is represented by a set of vertices #{v} and a set of edges #{(from, to)}"
   ([] (monotonic-dag #{::start ::end} #{[::start ::end]}))
   ([init-vertex init-edges]
    ;; XXX: check that the graph is dag!
@@ -110,6 +120,12 @@
       this)))
 
 (defn partial-order
+  "Creates a partial order graph. All elements can be found in a partial order, given by the edges between them.
+
+  Supports:
+
+  - (add-between-op dag from to v): adds a vertex v and two edges between (from v), (v to), removing the edge (from to)
+  - (remove-vertex-op dag from to): removes a vertex between existing vertices from and to"
   ([] (partial-order ::start ::end))
   ([start-vertex end-vertex]
    (partial-order start-vertex end-vertex #{start-vertex end-vertex} #{[start-vertex end-vertex]}))
@@ -151,8 +167,19 @@
       ::add-vertex    (update this :va #(conj % (::new op-args)))
       ::add-edge      (update this :ea #(conj % [(::from op-args) (::to op-args)]))
       ::remove-vertex (update this :vr #(conj % (::vertex op-args)))
+      ::remove-edge   (update this :ev #(conj % [(::from op-args) (::to op-args)]))
       this)))
 
 (defn tptp
+  "Creates a two-phase-two-phase graph. Backed by two two-phase sets, one for nodes the other for edges.
+
+  Can't enforce any global guarantees on the graph, for example DAG or Tree. Even if a replica thinks it is adding an edge that respects a DAG constraint, a conflicting operation can break that guarantee.
+
+  Supports all the natural operations:
+
+  - (add-vertex-op graph v)
+  - (add-edge--op graph from to)
+  - (remove-vertex-op graph v)
+  - (remove-edge-op graph from to)"
   ([] (tptp #{} #{}))
   ([init-vertex init-edges] (TPTPGraph. #{} #{} #{} #{})))
