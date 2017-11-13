@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [compare]))
 
 (defprotocol ICRDT
-  "Op-based CRDTs implement this protocol."
+  "Op-based CRDTs implement this protocol to update the CRDT and IDeref to return the value being represented."
   (step [this op] "step applies an operation to a CRDT, returning a new CRDT. nil is a valid op, and yields the same CRDT"))
 
 ;; ======================================================================
