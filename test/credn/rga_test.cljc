@@ -1,6 +1,7 @@
 (ns credn.rga-test
   (:require [credn.rga :as rga]
             [credn.core :as credn]
+            [credn.util :as util]
             [clojure.test :as t :refer [deftest testing is are]]))
 
 (deftest linear-seq
@@ -22,13 +23,25 @@
   (testing "can edit linearly"
     (let [xs        (rga/rga)
           ys        (rga/rga)
+          vs        (map vector (repeatedly util/new-uuid) (range 6))
           [xs' ops] (reduce (fn [[r ops] [a b]]
                               (let [op (rga/add-right-op r a b)]
                                 [(credn/step r op) (conj ops op)]))
                             [xs []]
-                            (map vector [::rga/start 0 1 2 3 4] [0 1 2 3 4 5]))
+                            (map vector (cons ::rga/start (drop-last vs)) vs))
           ys'       (reduce credn/step ys (shuffle ops))]
-      (is (= (range 6) @xs' @ys')))))
+      (is (= (range 6) (map second @xs') (map second @ys')))))
+  (testing "can edit linearly with repeated elements"
+    (let [xs        (rga/rga)
+          ys        (rga/rga)
+          vs        (map vector (repeatedly util/new-uuid) (concat (range 4) (range 4)))
+          [xs' ops] (reduce (fn [[r ops] [a b]]
+                              (let [op (rga/add-right-op r a b)]
+                                [(credn/step r op) (conj ops op)]))
+                            [xs []]
+                            (map vector (cons ::rga/start (drop-last 1 vs)) vs))
+          ys'       (reduce credn/step ys (shuffle ops))]
+      (is (= (concat (range 4) (range 4)) (map second @xs') (map second @ys'))))))
 
 (deftest with-remove-ops
   (testing "can edit linearly"

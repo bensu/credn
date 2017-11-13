@@ -26,30 +26,30 @@
     (when (and (not= ::end a) ;; you can't add-right of the end
                ;; you can only add right of an element that already exists
                (contains? (set/difference va vr) a))
-      [::add-right {::a a
-                    ::b b
+      [::add-right {::a       a
+                    ::b       b
                     ::version (-> clock (credn/inc-at rid) (credn/->version rid))}]))
   (cons-op [this x]
     (add-right-op this ::start x))
   (remove-op [this x]
     (when (and (not= ::start x) (not= ::end x)
                (contains? (set/difference va vr) x))
-      [::remove {::x x
-                 ::version  (-> clock (credn/inc-at rid) (credn/->version rid))}]))
+      [::remove {::x       x
+                 ::version (-> clock (credn/inc-at rid) (credn/->version rid))}]))
   ICRDT
   (step [this op]
     (letfn [(step-op [rga [op-name op-args :as op]]
               (case op-name
-                ::add-right (let [a (::a op-args)
-                                  b (::b op-args)
+                ::add-right (let [a       (::a op-args)
+                                  b       (::b op-args)
                                   after-a (get (:edges rga) a)]
                               (-> rga
                                   (assoc :clock (::version op-args))
                                   (update :va conj b)
                                   (update :edges #(assoc % a b b after-a))))
-                ::remove (-> rga
-                             (assoc :clock (::version op-args))
-                             (update :vr conj (::x op-args)))
+                ::remove    (-> rga
+                                (assoc :clock (::version op-args))
+                                (update :vr conj (::x op-args)))
                 rga))
             (step-or-buffer [rga [op-name op-args :as op]]
               ;; check if the next operation is exactly one off
@@ -72,7 +72,9 @@
 
   - (add-right-op rga a b): adds b to the right of a, if a exists
   - (cons-op rga x): adds x at the beginning of the list
-  - (remove-op rga x): removes x from the list"
+  - (remove-op rga x): removes x from the list
+
+  In the current implementation each element in the array needs to be unique. If you want to repeat elements this is easy to achieve by transforming your elements from e to a tulpe (uuid, e). "
   ([] (rga (util/new-uuid)))
   ([rid] (rga rid '(::start ::end)))
   ([rid init-seq]
